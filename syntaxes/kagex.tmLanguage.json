@@ -1,4 +1,3 @@
-// [PackageDev] target_format: plist, ext: tmLanguage
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "kagex",
@@ -19,11 +18,36 @@
         }
       ]
     },
-    "label": {"patterns": [
+    "label": {
+      "patterns": [
+        { "include": "#label-exp" },
+        { "include": "#label-noexp" }
+      ]
+    },
+    "label-exp": {"patterns": [
         {
-            "begin": "^\\t*\\*([^\\|]*)\\|?",
+            "begin": "^\\t*(\\*)([^\\|]*)(\\|&)",
             "end": "$",
-            "name": "entity.name.tag.kagex",
+            "beginCaptures": {
+                "1": { "name": "keyword.operator.label.kagex" },
+                "2": { "name": "entity.name.labelname.kagex" },
+                "3": { "name": "keyword.operator.labelattribute.kagex" }
+            },
+            "patterns": [
+                { "include": "source.tjs" }
+            ]
+        }
+    ]
+    },
+    "label-noexp": {"patterns": [
+        {
+            "begin": "^\\t*(\\*)([^\\|]*)(\\|(?!&))?",
+            "end": "$",
+            "beginCaptures": {
+                "1": { "name": "keyword.operator.label.kagex" },
+                "2": { "name": "entity.name.labelname.kagex" },
+                "3": { "name": "keyword.operator.labelattribute.kagex" }
+            },
             "patterns": [
                 {
                     "include": "#attribute-rvalue"
@@ -61,25 +85,27 @@
     "tag": {
       "patterns": [
         {
-            "begin": "(?<!\\[)\\[\\s*\\w+",
-            "end": "\\]",
+            "begin": "(?<!\\[)(\\[)(\\s*[^ \\t\\n\\]]+)",
+            "end": "(\\])",
             "name": "meta.tag.kagex",
             "beginCaptures": {
-                "0": { "name": "entity.name.type.kagex" }
+                "1": { "name": "keyword.operator.tagdelimiter.kagex" },
+                "2": { "name": "entity.name.tagkind.kagex" }
             },
             "endCaptures": {
-                "0": { "name": "entity.name.type.kagex" }
+                "1": { "name": "keyword.operator.tagdelimiter.kagex" }
             },
             "patterns": [
                 { "include": "#attribute" }
             ]
         },
         {
-            "begin": "^\\t*@\\s*\\w+",
+            "begin": "^\\t*(@)\\s*([^ \\t\\n]+)",
             "end": "(?<!\\\\)$",
             "name": "meta.tag.commandline.kagex",
             "beginCaptures": {
-                "0": { "name": "entity.name.type.kagex" }
+                "1": { "name": "keyword.operator.tagdelimiter.kagex" },
+                "2": { "name": "entity.name.tagkind.kagex" }
             },
             "patterns": [
                 { "include": "#attribute" }
@@ -102,7 +128,7 @@
     "attribute-quotes": {
       "patterns": [
         {
-            "begin": "(\\w+)(\\s*=\\s*(%?(\"|')))",
+            "begin": "([^ \\t\\n]+)(\\s*=\\s*(%?(\"|')))",
             "beginCaptures": {
                 "1": { "name": "entity.name.function.kagex" },
                 "4": { "name": "string.quoted.single.kagex" }
@@ -122,7 +148,7 @@
     "attribute-inline-exp-quotes": {
       "patterns": [
         {
-            "begin": "(\\w+)(\\s*=\\s*(&(\"|')))",
+            "begin": "([^ \\t\\n]+)(\\s*=\\s*(&(\"|')))",
             "beginCaptures": {
                 "1": { "name": "entity.name.function.kagex" },
                 "4": { "name": "string.quoted.single.kagex" }
@@ -140,7 +166,7 @@
     "attribute-inline-exp-noquotes": {
       "patterns": [
         {
-            "begin": "(\\w+)(\\s*=\\s*&)",
+            "begin": "([^ \\t\\n]+)(\\s*=\\s*&)",
             "beginCaptures": {
                 "1": { "name": "entity.name.function.kagex" }
             },
@@ -186,7 +212,7 @@
     "attribute-noquotes": {
       "patterns": [
         {
-            "begin": "(\\w+)(\\s*=\\s*)",
+            "begin": "([^ \\t\\n]+)(\\s*=\\s*)",
             "beginCaptures": {
                 "1": { "name": "entity.name.function.kagex" }
             },
@@ -202,7 +228,7 @@
     "attribute-noarg": {
       "patterns": [
         {
-            "match": "(\\w+)",
+            "match": "([^ \\t\\n]+)",
             "captures": {
                 "1": { "name": "entity.name.function.kagex" }
             }
@@ -234,7 +260,8 @@
     },
     "attribute-rvalue-inline": {
         "name": "constant.character.escape.kagex",
-        "match": "^&.*",
+        "begin": "^&",
+        "end": "$",
         "patterns": [
             { "include": "source.tjs" }
         ]
